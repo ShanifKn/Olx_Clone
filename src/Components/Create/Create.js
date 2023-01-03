@@ -1,12 +1,37 @@
-import React, { Fragment, useState } from "react";
+import React, { Fragment, useContext, useState } from "react";
 import "./Create.css";
 import Header from "../Header/Header";
+import { db, storage } from "../../config/firebase";
+import { AuthContext } from "../../store/Context";
+import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
+import { addDoc, collection } from "firebase/firestore";
+import { useNavigate } from "react-router-dom";
 
 const Create = () => {
+  const { user } = useContext(AuthContext);
   const [name, setName] = useState("");
   const [category, setCategory] = useState("");
   const [price, setPrice] = useState("");
-  const [image, setImage] = useState("");
+  const [image, setImage] = useState(null);
+  const data = new Date();
+  const navigate = useNavigate();
+
+  const handleSubmit = () => {
+    const imageRef = ref(storage, `image/${image.name}`);
+    uploadBytesResumable(imageRef, image).then((snapshot) => {
+      getDownloadURL(snapshot.ref).then((url) => {
+        addDoc(collection(db, "Products"), {
+          name,
+          category,
+          price,
+          url,
+          userId: user.uid,
+          createdAt: data,
+        });
+        navigate("/");
+      });
+    });
+  };
 
   return (
     <Fragment>
@@ -59,17 +84,18 @@ const Create = () => {
             width="200px"
             height="200px"
             src={image ? URL.createObjectURL(image) : ""}></img>
-          <form>
-            <br />
-            <input
-              type="file"
-              onChange={(e) => {
-                setImage(e.target.file[0]);
-              }}
-            />
-            <br />
-            <button className="uploadBtn">upload and Submit</button>
-          </form>
+
+          <br />
+          <input
+            type="file"
+            onChange={(e) => {
+              setImage(e.target.files[0]);
+            }}
+          />
+          <br />
+          <button onClick={handleSubmit} className="uploadBtn">
+            upload and Submit
+          </button>
         </div>
       </card>
     </Fragment>

@@ -2,6 +2,7 @@ import React from 'react';
 
 import './Banner.css';
 import Arrow from '../../assets/Arrow'
+import { Link } from 'react-router-dom';
 function Banner() {
   return (
     <div className="bannerParentDiv">
@@ -12,6 +13,7 @@ function Banner() {
             <Arrow></Arrow> 
           </div>
           <div className="otherQuickOptions">
+         
             <span>Cars</span>
             <span>Motorcy...</span>
             <span>Mobile Ph...</span>
